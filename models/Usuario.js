@@ -86,12 +86,12 @@ const usuario_model = (conexion) => {
         timestamps : true
     })
 
-    usuario.prototype.encriptarContrasena = (contrasena) => {
+    usuario.prototype.encriptarContrasena = function(contrasena) {
         this.usuarioSalt = crypto.randomBytes(16).toString("hex")
         this.usuarioHash = crypto.pbkdf2Sync(contrasena, this.usuarioSalt, 1000, 64, "sha512").toString("hex")
     }
 
-    usuario.prototype.validarContrasena = (contrasena) => {
+    usuario.prototype.validarContrasena = function(contrasena) {
         let hashTemporal = crypto.pbkdf2Sync(contrasena, this.usuarioSalt, 1000, 64, "sha512").toString("hex")
         if (hashTemporal === this.usuarioHash){
             return true
@@ -102,7 +102,7 @@ const usuario_model = (conexion) => {
         }
     }
 
-    usuario.generarJSONWebToken = () => {
+    usuario.prototype.generarJSONWebToken = function() {
         let payload = {
             usuarioId :  this.usuarioId,
             usuarioNombre : this.usuarioNombre + " "  + this.usuarioCorreo
