@@ -36,12 +36,6 @@ const usuario_model = (conexion) => {
             allowNull : false
         },
 
-        usuarioContrasena : {
-            field : "usuario_contrasena",
-            type : Sequelize.STRING,
-            allowNull : false
-        },
-
         usuarioDescripcion : {
             field : "usuario_descripcion",
             type : Sequelize.STRING,

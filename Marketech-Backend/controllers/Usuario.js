@@ -87,11 +87,7 @@ const IniciarSesion = (req, res) => {
 
     where: {
       usuarioCorreo: req.body.usuarioCorreo,
-    },
-
-    where: {
-      usuarioContrasena: req.body.usuarioContrasena,
-    },
+    }
   })
     .then((usuarioEncontrado) => {
       if (usuarioEncontrado) {
@@ -130,7 +126,6 @@ const IniciarSesion = (req, res) => {
 };
 
 const ActualizarUsuario = (req, res) => {
-
   const MensajedeUsuarioRepetido = (datorepetido) => {
     res.status(400).json({
       ok: false,
@@ -182,7 +177,7 @@ const ActualizarUsuario = (req, res) => {
         if (usuarioRepetido) {
           MensajedeUsuarioRepetido("telefono");
         } else {
-            ActualizaciondeUsuario();
+          ActualizaciondeUsuario();
         }
       })
       .catch((error) => {
@@ -205,65 +200,66 @@ const ActualizarUsuario = (req, res) => {
   };
 
   Usuario.findOne({ where: { usuarioNombre: req.params.nombre } })
-  .then((usuarioEncontrado) => {
-    if (usuarioEncontrado) {
-      Usuario.findOne({ where: { usuarioNombre: req.body.usuarioNombre } })
-        .then((usuarioRepetido) => {
-          if (usuarioRepetido) {
-            MensajedeUsuarioRepetido("nombre");
-          } else {
-            VerificadordeCorreoRepetido();
-          }
-        })
-        .catch((error) => {
-          MensajedeError(error);
+    .then((usuarioEncontrado) => {
+      if (usuarioEncontrado) {
+        Usuario.findOne({ where: { usuarioNombre: req.body.usuarioNombre } })
+          .then((usuarioRepetido) => {
+            if (usuarioRepetido) {
+              MensajedeUsuarioRepetido("nombre");
+            } else {
+              VerificadordeCorreoRepetido();
+            }
+          })
+          .catch((error) => {
+            MensajedeError(error);
+          });
+      } else {
+        return res.status(404).json({
+          ok: false,
+          content: null,
+          message: "El usuario que se desea actualizar no existe",
         });
-    } else {
-      return res.status(404).json({
+      }
+    })
+    .catch((error) => {
+      return res.status(500).json({
         ok: false,
-        content: null,
-        message: "El usuario que se desea actualizar no existe",
+        content: error,
+        message: "Ocurrio un problema al tratar de actualizar al usuario",
       });
-    }
-  })
-  .catch((error) => {
-    return res.status(500).json({
-      ok: false,
-      content: error,
-      message: "Ocurrio un problema al tratar de actualizar al usuario",
     });
-  });
 };
 
 const BuscarUsuario = (req, res) => {
-    Usuario.findOne({where : {usuarioNombre : req.params.nombre}}).then((usuarioEncontrado) => {
-        if (usuarioEncontrado){
-            res.status(200).json({
-                ok : true,
-                content : usuarioEncontrado,
-                message : "Usuario encontrado exitosamente"
-            })
-        }
-
-        else{
-            res.status(404).json({
-                ok : false,
-                content : null,
-                message : "El usuario que se desea encontrar no existe "
-            })
-        }
-    }).catch((error) => {
-        res.status(500).json({
-            ok : false,
-            content : error,
-            message : "Ocurrio un error al tratar de encontrar el usuario deseado"
-        })
+  Usuario.findOne({ where: { usuarioNombre: req.params.nombre } })
+    .then((usuarioEncontrado) => {
+      if (usuarioEncontrado) {
+        res.status(200).json({
+          ok: true,
+          content: usuarioEncontrado,
+          message: "Usuario encontrado exitosamente",
+        });
+      } else {
+        res.status(404).json({
+          ok: false,
+          content: null,
+          message: "El usuario que se desea encontrar no existe ",
+        });
+      }
     })
-}
+    .catch((error) => {
+      res.status(500).json({
+        ok: false,
+        content: error,
+        message: "Ocurrio un error al tratar de encontrar el usuario deseado",
+      });
+    });
+};
+
 
 module.exports = {
   CrearCuenta,
   IniciarSesion,
   ActualizarUsuario,
-  BuscarUsuario
+  BuscarUsuario,
 };
