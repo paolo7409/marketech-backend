@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const usuario_model = require("../models/Usuario")
 const producto_model = require("../models/Producto")
+const reclamo_model = require("../models/Reclamo")
 const conexion = new Sequelize(
     "marketech_node","romario", "innovahora",{
         host:"127.0.0.1",
@@ -16,9 +17,11 @@ const conexion = new Sequelize(
 
 const Usuario = usuario_model(conexion)
 const Producto = producto_model(conexion)
+const Reclamo = reclamo_model(conexion)
 
 module.exports = {
     conexion: conexion,
     Usuario,
-    Producto
+    Producto,
+    Reclamo
 }
