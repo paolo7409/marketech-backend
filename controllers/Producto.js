@@ -30,7 +30,63 @@ const insertarProducto = (req, res) => {
   });
 };
 
+const actualizarProducto = (req, res) => {
+
+  Producto.findOne({ where: { id: req.params.id } }).then(
+    (producto_encontrado) => {
+      Producto.update(req.body, {
+        where: {
+          id: producto_encontrado.id,
+        },
+      })
+        .then((resultado) => {
+          return res.status(200).json({
+            ok: true,
+            content: resultado,
+            message: "Producto actualizado correctamente.",
+          });
+        })
+        .catch((error) => {
+          return res.status(500).json({
+            ok: false,
+            content: error,
+            message: "Ocurrió un problema al tratar de actualizar el producto.",
+          });
+        });
+    }
+  );
+};
+
+const eliminarProducto = (req, res) => {
+
+  Producto.findOne({ where: { id: req.params.id } }).then(
+    (producto_encontrado) => {
+      Producto.update({estado: 0}, {
+        where: {
+          id: producto_encontrado.id,
+        },
+      })
+        .then((resultado) => {
+          return res.status(200).json({
+            ok: true,
+            content: resultado,
+            message: "Producto eliminado correctamente.",
+          });
+        })
+        .catch((error) => {
+          return res.status(500).json({
+            ok: false,
+            content: error,
+            message: "Ocurrió un problema al tratar de eliminar el producto.",
+          });
+        });
+    }
+  );
+};
+
 module.exports = {
   obtenerProductos,
-  insertarProducto
+  insertarProducto,
+  actualizarProducto,
+  eliminarProducto
 };
