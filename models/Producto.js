@@ -21,7 +21,7 @@ const producto_model = (conexion) => {
             type: Sequelize.INTEGER,
             references: {
                 model: 'usuarios',
-                key: 'id'
+                key: 'usuario_id'
             }
         },
         imagen : {
@@ -54,11 +54,19 @@ const producto_model = (conexion) => {
             type : Sequelize.DECIMAL,
             allowNull : true
         },
+
         estado : {
             field : "estado",
             type : Sequelize.TINYINT,
             allowNull : false
+        },
+
+        en_venta : {
+            field : "en_venta",
+            type : Sequelize.TINYINT,
+            allowNull : false
         }
+
     },{
         tableName : "productos",
         timestamps : true

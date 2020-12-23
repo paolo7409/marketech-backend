@@ -1,4 +1,6 @@
 const { Usuario } = require("../config/Sequelize");
+const {Compra} = require("../config/Sequelize")
+const {Producto} = require("../config/Sequelize")
 
 const datosunicosdeusuario = {
   nombre: "",
@@ -231,12 +233,79 @@ const ActualizarUsuario = (req, res) => {
 };
 
 const BuscarUsuario = (req, res) => {
+  
+  const ObtenerProductosComprados = (id_usuario) => {
+
+    Compra.findAll({ id_usuario : id_usuario }).then((productosEncontrados) => {
+      if (productosEncontrados){
+        return productosEncontrados
+      }
+
+      else{
+        return false
+      }
+
+    }).catch((error) => {
+      return res.status(500).json({
+        ok: false,
+        content: error,
+        message: "Ocurrio un error al tratar de encontrar el usuario deseado",
+      });
+    });
+  }
+
+  const ObtenerProductosVendidos = (id_usuario) => {
+
+    Producto.findAll({ id_usuario : id_usuario }).then((productosEncontrados) => {
+      if (productosEncontrados){
+        const productosvendidos = productosEncontrados.filter(producto => producto.stock === 0)
+        return productosvendidos
+      }
+
+      else{
+        return false
+      }
+
+    }).catch((error) => {
+      return res.status(500).json({
+        ok: false,
+        content: error,
+        message: "Ocurrio un error al tratar de encontrar el usuario deseado",
+      });
+    });
+  }
+
+  const ObtenerProductosenVenta = (id_usuario) => {
+    Producto.findAll({ id_usuario : id_usuario }).then((productosEncontrados) => {
+      if (productosEncontrados){
+        const productosenventa = productosEncontrados.filter(producto => producto.stock >= 1)
+        return productosenventa
+      }
+
+      else{
+        return false
+      }
+
+    }).catch((error) => {
+      return res.status(500).json({
+        ok: false,
+        content: error,
+        message: "Ocurrio un error al tratar de encontrar el usuario deseado",
+      });
+    });
+  }
+
   Usuario.findOne({ where: { usuarioNombre: req.params.nombre } })
     .then((usuarioEncontrado) => {
       if (usuarioEncontrado) {
         res.status(200).json({
           ok: true,
-          content: usuarioEncontrado,
+          content: {
+            usuario : usuarioEncontrado,
+            productosenventa : ObtenerProductosenVenta(usuarioEncontrado.usuarioId),
+            productosvendidos : ObtenerProductosVendidos(usuarioEncontrado.usuarioId),
+            productoscomprados : ObtenerProductosComprados(usuarioEncontrado.usuarioId)
+          },
           message: "Usuario encontrado exitosamente",
         });
       } else {
