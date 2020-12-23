@@ -1,6 +1,6 @@
 const { Usuario } = require("../config/Sequelize");
-const {Compra} = require("../config/Sequelize")
-const {Producto} = require("../config/Sequelize")
+const { Compra } = require("../config/Sequelize");
+const { Producto } = require("../config/Sequelize");
 
 const datosunicosdeusuario = {
   nombre: "",
@@ -89,7 +89,7 @@ const IniciarSesion = (req, res) => {
 
     where: {
       usuarioCorreo: req.body.usuarioCorreo,
-    }
+    },
   })
     .then((usuarioEncontrado) => {
       if (usuarioEncontrado) {
@@ -234,97 +234,126 @@ const ActualizarUsuario = (req, res) => {
 
 const BuscarUsuario = (req, res) => {
   
-  const ObtenerProductosComprados = (id_usuario) => {
+  const ObtenerProductosComprados = (usuarioId) => {
+    let productoscomprados;
 
-    Compra.findAll({ id_usuario : id_usuario }).then((productosEncontrados) => {
-      if (productosEncontrados){
-        return productosEncontrados
-      }
+    Compra.findAll({ where: { id_usuario: usuarioId } }).then((productosEncontrados) => {
+      if (productosEncontrados) {
+        let productoscompradosobtenidos = [];
+        productosEncontrados.forEach((producto) =>
+          productoscompradosobtenidos.push(producto.dataValues)
+        );
+        productoscomprados = productoscompradosobtenidos;
 
-      else{
-        return false
-      }
+        return productoscomprados
 
-    }).catch((error) => {
-      return res.status(500).json({
-        ok: false,
-        content: error,
-        message: "Ocurrio un error al tratar de encontrar el usuario deseado",
-      });
-    });
-  }
-
-  const ObtenerProductosVendidos = (id_usuario) => {
-
-    Producto.findAll({ id_usuario : id_usuario }).then((productosEncontrados) => {
-      if (productosEncontrados){
-        const productosvendidos = productosEncontrados.filter(producto => producto.stock === 0)
-        return productosvendidos
-      }
-
-      else{
-        return false
-      }
-
-    }).catch((error) => {
-      return res.status(500).json({
-        ok: false,
-        content: error,
-        message: "Ocurrio un error al tratar de encontrar el usuario deseado",
-      });
-    });
-  }
-
-  const ObtenerProductosenVenta = (id_usuario) => {
-    Producto.findAll({ id_usuario : id_usuario }).then((productosEncontrados) => {
-      if (productosEncontrados){
-        const productosenventa = productosEncontrados.filter(producto => producto.stock >= 1)
-        return productosenventa
-      }
-
-      else{
-        return false
-      }
-
-    }).catch((error) => {
-      return res.status(500).json({
-        ok: false,
-        content: error,
-        message: "Ocurrio un error al tratar de encontrar el usuario deseado",
-      });
-    });
-  }
-
-  Usuario.findOne({ where: { usuarioNombre: req.params.nombre } })
-    .then((usuarioEncontrado) => {
-      if (usuarioEncontrado) {
-        res.status(200).json({
-          ok: true,
-          content: {
-            usuario : usuarioEncontrado,
-            productosenventa : ObtenerProductosenVenta(usuarioEncontrado.usuarioId),
-            productosvendidos : ObtenerProductosVendidos(usuarioEncontrado.usuarioId),
-            productoscomprados : ObtenerProductosComprados(usuarioEncontrado.usuarioId)
-          },
-          message: "Usuario encontrado exitosamente",
-        });
       } else {
-        res.status(404).json({
-          ok: false,
-          content: null,
-          message: "El usuario que se desea encontrar no existe ",
-        });
+        productoscomprados = false;
       }
     })
     .catch((error) => {
+      console.log(error);
       res.status(500).json({
         ok: false,
         content: error,
         message: "Ocurrio un error al tratar de encontrar el usuario deseado",
       });
-    });
-};
+    });;
+  };
 
+  const ObtenerProductosVendidos = (usuarioId) => {
+    let productosvendidos;
+
+    Producto.findAll({ where: { id_usuario: usuarioId } })
+      .then((productosEncontrados) => {
+        if (productosEncontrados) {
+          let productosvendidosbtenidos = [];
+          productosEncontrados.forEach((producto) =>
+            productosvendidosbtenidos.push(producto.dataValues)
+          );
+          let productosvendidosfiltrados = productosvendidosbtenidos.filter(
+            (producto) => producto.stock === 0
+          );
+          productosvendidos = productosvendidosfiltrados;
+        } else {
+          productosvendidos = false;
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        res.status(500).json({
+          ok: false,
+          content: error,
+          message: "Ocurrio un error al tratar de encontrar el usuario deseado",
+        });
+      });
+  };
+
+  const ObtenerProductosenVenta = (usuarioId) => {
+    let productosenventa;
+
+    Producto.findAll({ where: { id_usuario: usuarioId } })
+      .then((productosEncontrados) => {
+        if (productosEncontrados) {
+          let productosenventaobtenidos = [];
+          productosEncontrados.forEach((producto) =>
+            productosenventaobtenidos.push(producto.dataValues)
+          );
+          let productosenventafiltrados = productosenventaobtenidos.filter(
+            (producto) => producto.stock > 0
+          );
+          productosenventa = productosenventafiltrados;
+        } else {
+          productosenventa = false;
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        res.status(500).json({
+          ok: false,
+          content: error,
+          message: "Ocurrio un error al tratar de encontrar el usuario deseado",
+        });
+      });
+  };
+
+  const ObtenerUsuarioBuscado = () => {
+    Usuario.findOne({ where: { usuarioNombre: req.params.nombre } })
+      .then((usuarioEncontrado) => {
+        if (usuarioEncontrado) {
+
+          ObtenerProductosComprados(usuarioEncontrado.usuarioId).then((respuesta) => {
+            console.log(respuesta)
+          }).catch((error) => {
+            console.log(error)
+          })
+
+          res.status(200).json({
+            ok: true,
+            content: {
+              usuario: usuarioEncontrado
+            },
+            message: "Usuario encontrado exitosamente",
+          });
+        } else {
+          res.status(404).json({
+            ok: false,
+            content: null,
+            message: "El usuario que se desea encontrar no existe ",
+          });
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        res.status(500).json({
+          ok: false,
+          content: error,
+          message: "Ocurrio un error al tratar de encontrar el usuario deseado",
+        });
+      });
+  };
+  ObtenerUsuarioBuscado();
+};
 
 module.exports = {
   CrearCuenta,
