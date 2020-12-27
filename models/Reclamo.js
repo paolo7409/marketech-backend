@@ -8,12 +8,12 @@ const reclamo_model = (conexion)=>{
             primaryKey : true,
             autoIncrement : true,
             allowNull : false
-        },
+        }, 
         id_usuario : {
             type: Sequelize.INTEGER,
             references: {
                 model: 'usuarios',
-                key: 'id'
+                key: 'usuario_id'
             }
         },
         id_producto : {
@@ -23,15 +23,25 @@ const reclamo_model = (conexion)=>{
                 key: 'id'
             }
         },
+
+        id_compra : {
+            type: Sequelize.INTEGER,
+            references : {
+                model : "compras",
+                key : "id"
+            }
+        },
+
         mensaje : {
             field:"mensaje",
             type: Sequelize.STRING,
             allowNull:false
         },
+
         estado: {
             field:"estado",
             type: Sequelize.TINYINT,
-
+            defaultValue : true
         }
     },{
         tablename:"reclamos",

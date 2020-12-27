@@ -2,7 +2,10 @@ const express = require("express")
 const bodyParser = require("body-parser")
 const {conexion} = require("./Sequelize")
 const {usuario_router} = require("../routes/Usuario")
+const {categoria_router} = require("../routes/Categoria")
 const {producto_router} = require("../routes/Producto")
+const {compra_router} = require("../routes/Compra")
+const {reclamo_router} = require("../routes/Reclamo")
 
 class Server{
     constructor(){
@@ -33,6 +36,9 @@ class Server{
         })
         this.app.use("",usuario_router)
         this.app.use("",producto_router)
+        this.app.use("",compra_router)
+        this.app.use("",reclamo_router)
+        this.app.use("",categoria_router)
     }
 
     iniciarServidor(){
