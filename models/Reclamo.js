@@ -13,7 +13,7 @@ const reclamo_model = (conexion)=>{
             type: Sequelize.INTEGER,
             references: {
                 model: 'usuarios',
-                key: 'usuario_id'
+                key: 'id_usuario'
             }
         },
         id_producto : {

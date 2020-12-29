@@ -4,8 +4,8 @@ const jsonwebtoken = require("jsonwebtoken")
 
 const usuario_model = (conexion) => {
     let usuario = conexion.define("usuarios", {
-        usuarioId : {
-            field : "usuario_id",
+        idUsuario : {
+            field : "id_usuario",
             type : Sequelize.INTEGER,
             primaryKey : true,
             autoIncrement : true,
