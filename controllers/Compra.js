@@ -124,6 +124,7 @@ mercadopago.configure({
     access_token: "TEST-4696634682935543-122807-d8f59d2542d8dd6f8145afc475b0030a-694179998",
 })
 //COMPRADOR EMAIL: test_user_57152140@testuser.com
+//VISA: 4009 1753 3280 6176
 const procesar = async (req, res) => {
     console.log(req.body);
     var preference = {
