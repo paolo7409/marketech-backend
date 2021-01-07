@@ -6,10 +6,9 @@ const categoria_model = require("../models/Categoria")
 const compra_model = require("../models/Compra")
 
 const conexion = new Sequelize(
-    "marketech_node","romario", "innovahora",{
+    "marketech_node","root", "root",{
         host:"127.0.0.1",
         dialect: "mysql",
-        port: '3303',
         timezone: "-05:00",
         logging: false, 
         dialectOptions : {

@@ -115,6 +115,12 @@ const IniciarSesion = (req, res) => {
             message: "Los datos ingresados son incorrectos",
           });
         }
+      } else {
+        res.status(404).json({
+          ok: false,
+          content: null,
+          message: "Los datos ingresados son incorrectos",
+        });
       }
     })
     .catch((error) => {
@@ -232,106 +238,62 @@ const ActualizarUsuario = (req, res) => {
     });
 };
 
-const BuscarUsuario = (req, res) => {
-  
-  const ObtenerProductosComprados = (usuarioId) => {
-    let productoscomprados;
-
-    Compra.findAll({ where: { id_usuario: usuarioId } }).then((productosEncontrados) => {
-      if (productosEncontrados) {
-        let productoscompradosobtenidos = [];
-        productosEncontrados.forEach((producto) =>
-          productoscompradosobtenidos.push(producto.dataValues)
-        );
-        productoscomprados = productoscompradosobtenidos;
-
-        return productoscomprados
-
+const ActualizarDescripcionUsuario = (req, res) => {
+  Usuario.findOne({ where: { usuarioNombre: req.params.nombre } }).then(
+    (usuarioEncontrado) => {
+      if (usuarioEncontrado) {
+        Usuario.update(
+          req.body ,
+          { where: { usuarioNombre: req.params.nombre } }
+        )
+          .then((usuarioEncontrado) => {
+            res.status(200).json({
+              ok: true,
+              content: usuarioEncontrado,
+              message: "Descripcion actualizada exitosamente",
+            });
+          })
+          .catch((error) => {
+            console.log(error)
+            res.status(500).json({
+              ok: false,
+              content: error,
+              message:
+                "Ocurrio un error al tratar de actualizar la descripcion del usuario",
+            });
+          });
       } else {
-        productoscomprados = false;
+        res.status(404).json({
+          ok: false,
+          content: null,
+          message: "El usuario que se desea actualizar no se encontro",
+        });
       }
-    })
-    .catch((error) => {
-      console.log(error);
-      res.status(500).json({
-        ok: false,
-        content: error,
-        message: "Ocurrio un error al tratar de encontrar el usuario deseado",
-      });
-    });;
-  };
+    }
+  ).catch((error) => {
+    console.log(error)
+    res.status(500).json({
+      ok: false,
+      content: error,
+      message:
+        "Ocurrio un error al tratar de actualizar la descripcion del usuario",
+    });
+  })
+};
 
-  const ObtenerProductosVendidos = (usuarioId) => {
-    let productosvendidos;
+const BuscarUsuario = (req, res) => {
 
-    Producto.findAll({ where: { id_usuario: usuarioId } })
-      .then((productosEncontrados) => {
-        if (productosEncontrados) {
-          let productosvendidosbtenidos = [];
-          productosEncontrados.forEach((producto) =>
-            productosvendidosbtenidos.push(producto.dataValues)
-          );
-          let productosvendidosfiltrados = productosvendidosbtenidos.filter(
-            (producto) => producto.stock === 0
-          );
-          productosvendidos = productosvendidosfiltrados;
-        } else {
-          productosvendidos = false;
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-        res.status(500).json({
-          ok: false,
-          content: error,
-          message: "Ocurrio un error al tratar de encontrar el usuario deseado",
-        });
-      });
-  };
-
-  const ObtenerProductosenVenta = (usuarioId) => {
-    let productosenventa;
-
-    Producto.findAll({ where: { id_usuario: usuarioId } })
-      .then((productosEncontrados) => {
-        if (productosEncontrados) {
-          let productosenventaobtenidos = [];
-          productosEncontrados.forEach((producto) =>
-            productosenventaobtenidos.push(producto.dataValues)
-          );
-          let productosenventafiltrados = productosenventaobtenidos.filter(
-            (producto) => producto.stock > 0
-          );
-          productosenventa = productosenventafiltrados;
-        } else {
-          productosenventa = false;
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-        res.status(500).json({
-          ok: false,
-          content: error,
-          message: "Ocurrio un error al tratar de encontrar el usuario deseado",
-        });
-      });
-  };
-
-  const ObtenerUsuarioBuscado = () => {
+  const ObtenerUsuarioBuscado = (productoscomprados, productosvendidos, productosenventa) => {
     Usuario.findOne({ where: { usuarioNombre: req.params.nombre } })
       .then((usuarioEncontrado) => {
         if (usuarioEncontrado) {
-
-          ObtenerProductosComprados(usuarioEncontrado.usuarioId).then((respuesta) => {
-            console.log(respuesta)
-          }).catch((error) => {
-            console.log(error)
-          })
-
           res.status(200).json({
             ok: true,
             content: {
-              usuario: usuarioEncontrado
+              usuario: usuarioEncontrado,
+              productoscomprados : productoscomprados,
+              productosvendidos : productosvendidos,
+              productosenventa : productosenventa
             },
             message: "Usuario encontrado exitosamente",
           });
@@ -352,12 +314,153 @@ const BuscarUsuario = (req, res) => {
         });
       });
   };
-  ObtenerUsuarioBuscado();
+
+  const ObtenerProductosUsuario = (usuarioId) => {
+    const ObtenerProductosComprados = new Promise((resolve, reject) => {
+      let productoscomprados;
+  
+      Compra.findAll({ where: { id_usuario: usuarioId } })
+        .then((productosEncontrados) => {
+          if (productosEncontrados) {
+            let productoscompradosobtenidos = [];
+            productosEncontrados.forEach((producto) =>
+              productoscompradosobtenidos.push(producto.dataValues)
+            );
+            productoscomprados = productoscompradosobtenidos;
+  
+            resolve(productoscomprados)
+  
+          } else {
+            resolve("por el momento el usuario no tiene productos comprados")
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          reject(error)
+          res.status(500).json({
+            ok: false,
+            content: error,
+            message: "Ocurrio un error al tratar de encontrar el usuario deseado",
+          });
+        });
+    });
+  
+    const ObtenerProductosVendidos = new Promise ((resolve, reject) => {
+      let productosvendidos;
+  
+      Producto.findAll({ where: { id_usuario: usuarioId } })
+        .then((productosEncontrados) => {
+          if (productosEncontrados) {
+            let productosvendidosbtenidos = [];
+            productosEncontrados.forEach((producto) =>
+              productosvendidosbtenidos.push(producto.dataValues)
+            );
+            let productosvendidosfiltrados = productosvendidosbtenidos.filter(
+              (producto) => producto.stock === 0
+            );
+            productosvendidos = productosvendidosfiltrados;
+  
+            resolve(productosvendidos)
+  
+          } else {
+            resolve("por el momento el usuario no tiene productos vendidos")
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          reject(error)
+          res.status(500).json({
+            ok: false,
+            content: error,
+            message: "Ocurrio un error al tratar de encontrar el usuario deseado",
+          });
+        });
+    });
+  
+    const ObtenerProductosenVenta = new Promise ((resolve, reject) => {
+      let productosenventa;
+  
+      Producto.findAll({ where: { id_usuario: usuarioId } })
+        .then((productosEncontrados) => {
+          if (productosEncontrados) {
+            let productosenventaobtenidos = [];
+            productosEncontrados.forEach((producto) =>
+              productosenventaobtenidos.push(producto.dataValues)
+            );
+            let productosenventafiltrados = productosenventaobtenidos.filter(
+              (producto) => producto.stock > 0
+            );
+            productosenventa = productosenventafiltrados;
+  
+            resolve(productosenventa)
+  
+          } else {
+            resolve("por el momento el usuario no tiene productos en venta")
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          reject(error)
+          res.status(500).json({
+            ok: false,
+            content: error,
+            message: "Ocurrio un error al tratar de encontrar el usuario deseado",
+          });
+        });
+    });
+  
+    ObtenerProductosComprados.then((productoscomprados) => {
+      ObtenerProductosVendidos.then((productosvendidos) => {
+        ObtenerProductosenVenta.then((productosenventa) => {
+          ObtenerUsuarioBuscado(productoscomprados, productosvendidos, productosenventa);
+        }).catch((error) => {
+          res.status(500).json({
+            ok: false,
+            content: error,
+            message: "Ocurrio un error al tratar de encontrar el usuario deseado",
+          });
+    })
+      }).catch((error) => {
+        res.status(500).json({
+          ok: false,
+          content: error,
+          message: "Ocurrio un error al tratar de encontrar el usuario deseado",
+        });
+    })
+    }).catch((error) => {
+      res.status(500).json({
+        ok: false,
+        content: error,
+        message: "Ocurrio un error al tratar de encontrar el usuario deseado",
+      });
+    })
+  }
+  Usuario.findOne({ where: { usuarioNombre: req.params.nombre } })
+  .then((usuarioEncontrado) => {
+    if (usuarioEncontrado) {
+      ObtenerProductosUsuario(usuarioEncontrado.idUsuario)
+    } else {
+      res.status(404).json({
+        ok: false,
+        content: null,
+        message: "El usuario que se desea encontrar no existe ",
+      });
+    }
+  })
+  .catch((error) => {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      content: error,
+      message: "Ocurrio un error al tratar de encontrar el usuario deseado",
+    });
+  });
 };
 
 module.exports = {
   CrearCuenta,
   IniciarSesion,
   ActualizarUsuario,
+  ActualizarDescripcionUsuario,
   BuscarUsuario,
 };
