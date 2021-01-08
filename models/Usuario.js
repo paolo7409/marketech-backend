@@ -26,7 +26,7 @@ const usuario_model = (conexion) => {
 
         usuarioFechaDeNacimiento : {
             field : "usuario_fechadenacimiento",
-            type : Sequelize.DATE,
+            type : Sequelize.STRING,
             allowNull : false
         },
 
@@ -44,7 +44,7 @@ const usuario_model = (conexion) => {
 
         usuarioTelefono : {
             field : "usuario_telefono",
-            type : Sequelize.INTEGER,
+            type : Sequelize.STRING,
             allowNull : false
         },
 
