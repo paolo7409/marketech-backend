@@ -41,6 +41,7 @@ const insertarReclamo = (req,res)=>{
             })
         })
         .catch(error =>{
+            console.log("Error en lo 1",error)
             res.status(500).json({
                 ok: false,
                 content: error,
@@ -49,55 +50,10 @@ const insertarReclamo = (req,res)=>{
         })
     }
 
-    const validarCompra = () => {
-        Compra.findByPk(req.body.id_compra).then((compraEncontrada) => {
-            if (compraEncontrada){
-                CrearReclamo()
-            }
-
-            else {
-                res.status(404).json({
-                    ok : false,
-                    content : null,
-                    message : "La compra de la cual se le desea reclamar no existe"
-                })
-            }
-        }).catch((error) => {
-            res.status(500).json({
-                ok : false,
-                content : error,
-                message : "Ocurrio un error al tratar de crear el reclamo deseado"
-            })
-        })
-    }
-
-    const validarProducto = () => {
-        Producto.findByPk(req.body.id_producto).then((productoEncontrado) => {
-            if (productoEncontrado){
-                validarCompra()
-            }
-
-            else {
-                res.status(404).json({
-                    ok : false,
-                    content : null,
-                    message : "El producto del cual se le desea reclamar no existe"
-                })
-            }
-        }).catch((error) => {
-            res.status(500).json({
-                ok : false,
-                content : error,
-                message : "Ocurrio un error al tratar de crear el reclamo deseado"
-            })
-        })
-
-    }
-
     const validarUsuario = () => {
-        Usuario.findByPk(req.body.id_usuario).then((usuarioEncontrado) => {
+        Usuario.findByPk(req.body.id_usuarioreclamado).then((usuarioEncontrado) => {
             if (usuarioEncontrado){
-                validarProducto()
+                CrearReclamo()
             }
             
             else {
@@ -108,6 +64,7 @@ const insertarReclamo = (req,res)=>{
                 })
             }
         }).catch((error) => {
+            console.log("Error en en la 2",error)
             res.status(500).json({
                 ok : false,
                 content : error,

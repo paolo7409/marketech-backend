@@ -16,19 +16,11 @@ const reclamo_model = (conexion)=>{
                 key: 'id_usuario'
             }
         },
-        id_producto : {
+        id_usuarioreclamado : {
             type: Sequelize.INTEGER,
             references: {
-                model: 'productos',
-                key: 'id'
-            }
-        },
-
-        id_compra : {
-            type: Sequelize.INTEGER,
-            references : {
-                model : "compras",
-                key : "id"
+                model: 'usuarios',
+                key: 'id_usuario'
             }
         },
 
