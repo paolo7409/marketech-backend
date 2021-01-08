@@ -41,156 +41,48 @@ const obtenerProductos = (req, res) => {
 };
 
 const insertarProducto = (req, res) => {
-
-  const CrearProducto = () => {
-    let producto = Producto.build(req.body);
-    producto
-      .save()
-      .then((resultado) => {
-        return res.status(201).json({
-          ok: true,
-          content: resultado,
-          message: "Producto creado exitosamente",
-        });
-      })
-      .catch((error) => {
-        return res.status(500).json({
-          ok: false,
-          content: error,
-          message: "Ocurrio un error al tratar de crear el producto",
-        });
+  let producto = Producto.build(req.body);
+  producto
+    .save()
+    .then((resultado) => {
+      return res.status(201).json({
+        ok: true,
+        content: resultado,
+        message: "Producto creado exitosamente.",
       });
-  };
-
-  const ValidarNombre = () => {
-    Producto.findOne({ where: { nombre: req.body.nombre } })
-      .then((productoEncontrado) => {
-        if (productoEncontrado) {
-          res.status(400).json({
-            ok: false,
-            content: null,
-            message: "el nombre ingresado ya esta en uso",
-          });
-        } else {
-          CrearProducto()
-        }
-      })
-      .catch((error) => {
-        return res.status(500).json({
-          ok: false,
-          content: error,
-          message: "Ocurrio un error al tratar de crear el producto",
-        });
-      });
-  };
-
-  const ValidarCategoria = () => {
-    Categoria.findByPk(req.body.id_categoria)
-      .then((categoriaEncontrada) => {
-        if (categoriaEncontrada) {
-          ValidarNombre();
-        } else {
-          return res.status(404).json({
-            ok: false,
-            content: null,
-            message: "la categoria no existe",
-          });
-        }
-      })
-      .catch((error) => {
-        return res.status(500).json({
-          ok: false,
-          content: error,
-          message: "Ocurrio un error al tratar de crear el producto",
-        });
-      });
-  };
-
-  Usuario.findByPk(req.body.id_usuario)
-    .then((usuarioEncontrado) => {
-      if (usuarioEncontrado) {
-        ValidarCategoria();
-      } else {
-        return res.status(404).json({
-          ok: false,
-          content: null,
-          message: "el usuario no existe",
-        });
-      }
     })
     .catch((error) => {
       return res.status(500).json({
         ok: false,
         content: error,
-        message: "Ocurrio un error al tratar de crear el producto",
+        message: "Ocurrió un error al tratar de crear el producto.",
       });
     });
 };
 
 const actualizarProducto = (req, res) => {
   
-  const ValidarNombreRepetido = () => {
-    Producto.findOne({ where: { nombre: req.body.nombre } })
-      .then((productoEncontrado) => {
-        if (productoEncontrado) {
-          return res.status(400).json({
-            ok: true,
-            content: null,
-            message: "el nombre ingresado ya esta en uso",
-          });
-        } else {
-          Producto.findByPk(req.params.id).then((producto_encontrado) => {
-            Producto.update(req.body, {
-              where: {
-                id: producto_encontrado.id,
-              },
-            })
-              .then((resultado) => {
-                return res.status(200).json({
-                  ok: true,
-                  content: resultado,
-                  message: "Producto actualizado exitosamente",
-                });
-              })
-              .catch((error) => {
-                return res.status(500).json({
-                  ok: false,
-                  content: error,
-                  message:
-                    "Ocurrió un problema al tratar de actualizar el producto",
-                });
-              });
-          });
-        }
-      }).catch((error) => {
-        return res.status(500).json({
-          ok: false,
-          content: error,
-          message: "Ocurrió un problema al tratar de actualizar el producto",
-        });
+  Producto.update(req.body, {
+    where: {
+      id: req.params.id,
+    },
+  })
+    .then((resultado) => {
+      return res.status(200).json({
+        ok: true,
+        content: resultado,
+        message: "Producto actualizado exitosamente.",
       });
-  };
-
-  Producto.findByPk(req.params.id).then((productoEncontrado) => {
-    if (productoEncontrado){
-      ValidarNombreRepetido();
-    }
-
-    else{
-      res.status(404).json({
-        ok : false,
-        content : null,
-        message : "El producto que se desea actualizar no existe"
-      })
-    }
-
-  }).catch((error) => {
-    return res.status(500).json({
-      ok: false,
-      content: error,
-      message: "Ocurrió un problema al tratar de actualizar el producto",
+    })
+    .catch((error) => {
+      return res.status(500).json({
+        ok: false,
+        content: error,
+        message:
+          "Ocurrió un problema al tratar de actualizar el producto.",
+      });
     });
-  });
+    
 };
 
 const eliminarProducto = (req, res) => {
@@ -219,7 +111,13 @@ const eliminarProducto = (req, res) => {
           });
         });
     }
-  );
+  ).catch((error) => {
+    return res.status(500).json({
+      ok: false,
+      content: error,
+      message: "El producto que desea eliminar no existe.",
+    });
+  });
 };
 
 module.exports = {

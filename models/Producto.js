@@ -61,12 +61,6 @@ const producto_model = (conexion) => {
             allowNull : false
         },
 
-        en_venta : {
-            field : "en_venta",
-            type : Sequelize.TINYINT,
-            allowNull : false
-        }
-
     },{
         tableName : "productos",
         timestamps : true
