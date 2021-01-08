@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const { Producto } = require("../config/Sequelize");
 const { Usuario } = require("../config/Sequelize");
 const { Categoria } = require("../config/Sequelize");
@@ -12,6 +13,11 @@ const obtenerProductos = (req, res) => {
   const myOrder = [];
   if('order' in req.query && 'campo' in req.query)
     myOrder.push([req.query.campo, req.query.order]);
+  
+  if('busqueda' in req.query){
+    myWhere['nombre'] = {};
+    myWhere['nombre'][Op.like] = `%${req.query.busqueda}%`;
+  }
 
   Producto.findAll({ 
     where: myWhere,
