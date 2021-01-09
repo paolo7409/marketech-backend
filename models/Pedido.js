@@ -17,6 +17,11 @@ const pedido_model = (conexion) => {
                 key: 'id_usuario'
             }
         },
+        codigo : {
+            field : "codigo",
+            type : Sequelize.STRING,
+            allowNull : false
+        },
         precio_total : {
             field : "precio_total",
             type: Sequelize.DECIMAL,

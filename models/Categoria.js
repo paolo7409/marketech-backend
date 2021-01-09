@@ -13,7 +13,12 @@ const categoria_model = (conexion) => {
             field : "nombre",
             type : Sequelize.STRING,
             allowNull : false
-        }
+        },
+        estado : {
+            field : "estado",
+            type : Sequelize.TINYINT,
+            allowNull : false
+        },
     },{
         tableName : "categorias",
         timestamps : true

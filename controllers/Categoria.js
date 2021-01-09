@@ -1,12 +1,14 @@
-const {Categoria, Producto} = require("../config/Sequelize")
+const {Categoria} = require("../config/Sequelize")
 
 const obtenerCategorias = (req, res) => {
-    Categoria.findAll().then((categorias) => {
+    Categoria.findAll({ 
+      where: {estado: 1}
+    }).then((categorias) => {
         if(categorias.length === 0) {
             res.status(404).json({
                 ok : false,
                 content : categorias,
-                message : "Por el momento no hay categorias registradas"           
+                message : "Por el momento no hay categorias registradas."           
             })
         }
 
@@ -14,7 +16,7 @@ const obtenerCategorias = (req, res) => {
             res.status(200).json({
                 ok : true,
                 content : categorias,
-                message : "Categorias obtenidas exitosamente"           
+                message : "Categorias obtenidas exitosamente."           
             })
         }
     }).catch((error) => {
@@ -22,62 +24,94 @@ const obtenerCategorias = (req, res) => {
           ok: false,
           content: error,
           message:
-            "Ocurrio un error al tratar de obtener las categorias deseadas",
+            "Ocurrio un error al tratar de obtener las categorias deseadas.",
         });
       });
 }
 
-const obtenerProductosdeCategoria = (req, res) => {
+const insertarCategoria = (req, res) => {
+  let categoria = Categoria.build(req.body);
+  categoria
+    .save()
+    .then((resultado) => {
+      return res.status(201).json({
+        ok: true,
+        content: resultado,
+        message: "Categoria creada exitosamente.",
+      });
+    })
+    .catch((error) => {
+      return res.status(500).json({
+        ok: false,
+        content: error,
+        message: "Ocurrió un error al tratar de crear la categoría.",
+      });
+    });
+};
+
+const actualizarCategoria = (req, res) => {
   
-    const verificarEstado = () => {
-      Producto.findAll({ where: { estado: 1 } })
+  Categoria.update(req.body, {
+    where: {
+      id: req.params.id,
+    },
+  })
+    .then((resultado) => {
+      return res.status(200).json({
+        ok: true,
+        content: resultado,
+        message: "Categoría actualizada exitosamente.",
+      });
+    })
+    .catch((error) => {
+      return res.status(500).json({
+        ok: false,
+        content: error,
+        message:
+          "Ocurrió un problema al tratar de actualizar la categoría.",
+      });
+    });
+    
+};
+
+const eliminarCategoria = (req, res) => {
+  Categoria.findOne({ where: { id: req.params.id } }).then(
+    (categoria_encontrado) => {
+      Categoria.update(
+        { estado: 0 },
+        {
+          where: {
+            id: categoria_encontrado.id,
+          },
+        }
+      )
         .then((resultado) => {
-          let productosenventa = "";
-          productosenventa = resultado.filter((producto) => producto.stock >= 1);
-  
-          res.status(200).json({
+          return res.status(200).json({
             ok: true,
-            content: productosenventa,
-            message: "Productos encontrados con éxito",
+            content: resultado,
+            message: "Categoría eliminada exitosamente.",
           });
         })
         .catch((error) => {
-          res.status(500).json({
+          return res.status(500).json({
             ok: false,
             content: error,
-            message: "Ocurrio un error.",
+            message: "Ocurrió un problema al tratar de eliminar la categoría deseada.",
           });
         });
-    };
-  
-    const verificarCategoria = () => {
-      Categoria.findOne({ where: { nombre: req.params.nombre } })
-        .then((resultado) => {
-          if (resultado) {
-            verificarEstado();
-          } else {
-            res.status(404).json({
-              ok: false,
-              content: null,
-              message:
-                "La categoria de la cual se desean obtener sus productos no existe",
-            });
-          }
-        })
-        .catch((error) => {
-          res.status(500).json({
-            ok: false,
-            content: error,
-            message:
-              "Ocurrio un error al tratar de obtener los productos de la categoria buscada",
-          });
-        });
-    };
-  
-    verificarCategoria();
-  };
+    }
+  ).catch((error) => {
+    return res.status(500).json({
+      ok: false,
+      content: error,
+      message: "La categoría que desea eliminar no existe.",
+    });
+  });
+};
 
 module.exports = {
-    obtenerCategorias,
-    obtenerProductosdeCategoria
+  obtenerCategorias,
+  insertarCategoria,
+  actualizarCategoria,
+  eliminarCategoria
 }

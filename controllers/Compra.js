@@ -1,4 +1,5 @@
 const {Compra} = require("../config/Sequelize")
+const {Pedido} = require("../config/Sequelize")
 const {Producto} = require("../config/Sequelize")
 const {Usuario} = require("../config/Sequelize")
 
@@ -126,7 +127,6 @@ mercadopago.configure({
 //COMPRADOR EMAIL: test_user_57152140@testuser.com
 //VISA: 4009 1753 3280 6176
 const procesar = async (req, res) => {
-    console.log(req.body);
     var preference = {
         back_urls: {
             success: `${req.get("host")}/compra/success`,
@@ -146,10 +146,27 @@ const procesar = async (req, res) => {
       };
       
     let respuesta = await mercadopago.preferences.create(preference)
-    console.log(respuesta.body.init_point);
+    console.log(respuesta.body);
     req.query.init_point = respuesta.body.init_point;
     req.query.id = respuesta.body.id;
     res.status(200).send(req.query);
+    let precio_total = 0;
+    for (let i = 0; i < req.body.length; i++) {
+        precio_total += req.body[i].unit_price * req.body[i].quantity;
+    }
+
+    let pedido = Pedido.build({
+        id_usuario: 1,
+        codigo: respuesta.body.id,
+        precio_total: precio_total,
+        estado_pedido: "Pendiente",
+        estado: 1,
+    });
+    pedido
+      .save()
+      .catch((error) => {
+        console.log(error)
+      });
     /*
     res.status(500).json({
         ok : true,
@@ -157,11 +174,29 @@ const procesar = async (req, res) => {
         message : "Endpoint de prueba"
     })
     */
-    console.log('Hola')
 }
 
 const success = async (req, res) => {
-    res.status(200).send(req.query)
+    Pedido.update({estado_pedido: "Pagado"}, {
+        where: {
+          codigo: req.query.preference_id,
+        },
+      })
+        .then((resultado) => {
+          return res.status(200).json({
+            ok: true,
+            content: resultado,
+            message: "Pago registrado con éxito.",
+          });
+        })
+        .catch((error) => {
+          return res.status(500).json({
+            ok: false,
+            content: error,
+            message:
+              "Ocurrió un problema al tratar de registrar su pago.",
+          });
+        });
 }
 
 const pending = async (req, res) => {
@@ -169,7 +204,26 @@ const pending = async (req, res) => {
 }
 
 const failure = async (req, res) => {
-    res.status(200).send(req.query)
+    Pedido.update({estado_pedido: "Cancelado"}, {
+        where: {
+          codigo: req.query.preference_id,
+        },
+      })
+        .then((resultado) => {
+          return res.status(200).json({
+            ok: true,
+            content: resultado,
+            message: "Pago registrado con éxito.",
+          });
+        })
+        .catch((error) => {
+          return res.status(500).json({
+            ok: false,
+            content: error,
+            message:
+              "Ocurrió un problema al tratar de registrar su pago.",
+          });
+        });
 }
 
 const notificaciones = async (req, res) => {
